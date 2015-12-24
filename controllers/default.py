@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 import logging
-logging.basicConfig(level = logging.DEBUG)
+
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('mailing')
+
 
 #########################################################################
 ## This is a sample controller
@@ -19,7 +21,7 @@ def index():
     if you need a simple wiki simply replace the two lines below with:
     return auth.wiki()
     """
-    response.flash = T("Hello World")
+    # response.flash = T("Hello World")
     return dict(message=T('Welcome to web2py!'))
 
 
@@ -41,23 +43,23 @@ def user():
     return dict(form=auth())
 
 
-@cache.action()
-def download():
-    """
-    allows downloading of uploaded files
-    http://..../[app]/default/download/[filename]
-    """
-    return response.download(request, db)
+# @cache.action()
+# def download():
+#     """
+#     allows downloading of uploaded files
+#     http://..../[app]/default/download/[filename]
+#     """
+#     return response.download(request, db)
 
 
-def call():
-    """
-    exposes services. for example:
-    http://..../[app]/default/call/jsonrpc
-    decorate with @services.jsonrpc the functions to expose
-    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
-    """
-    return service()
+# def call():
+#     """
+#     exposes services. for example:
+#     http://..../[app]/default/call/jsonrpc
+#     decorate with @services.jsonrpc the functions to expose
+#     supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
+#     """
+#     return service()
 
 @auth.requires_login()
 @auth.requires_membership('admin')
@@ -65,52 +67,59 @@ def addresses():
     form = SQLFORM.smartgrid(db.addresses)
     return locals()
 
+
 def validate_magazine_ready(form):
     year_month = '{}{}'.format(form.vars.f_year, form.vars.f_month)
     logger.error('year_month: {}'.format(year_month))
-    if not os.path.isfile('/var/web/dkars.nl/htdocs/DKARS Magazine {}.pdf'.format(year_month)):
-        form.errors.f_year = 'Magazine doesn\'t exist at download site for this year and month'
-    if not '$link' in form.vars.f_text_dutch:
-        form.errors.f_text_dutch = 'Test must contain $link where the link should be'
-    if not '$link' in form.vars.f_text_english:
-        form.errors.f_text_english = 'Test must contain $link where the link should be'
-    
+    if not os.path.isfile(
+            '/var/web/dkars.nl/htdocs/DKARS Magazine {}.pdf'.format(
+                    year_month)):
+        form.errors.f_year = 'Magazine bestaat niet op de download site (of niet op de juiste plek)'
+    if '$link' not in form.vars.f_text_dutch:
+        form.errors.f_text_dutch = 'Plaats $link op de plaats waar de link moet komen'
+    if '$link' not in form.vars.f_text_english:
+        form.errors.f_text_english = 'Plaats $link op de plaats waar de link moet komen'
+
+
 @auth.requires_login()
 @auth.requires_membership('admin')
 def send_mailing():
-   logger.debug('send_mailing called')
-   form = SQLFORM(db.mailings)
-   
-   if form.process(keepvalues=True, onvalidation=validate_magazine_ready).accepted:
-       # start sending
-       logger.debug('Scheduling')
-       result = scheduler.queue_task(send_mailing, pvars={'mailing': form.vars.id})
-       logger.debug('Scheduling result: {}'.format(result))
-       response.flash = 'Mailing wordt verstuurd'
-   elif form.errors:
-       response.flash = 'form has errors'
-   else:
-       response.flash = 'please fill out the form'
-   return dict(form=form)
+    logger.debug('send_mailing called')
+    form = SQLFORM(db.mailings)
+
+    if form.process(keepvalues=True,
+                    onvalidation=validate_magazine_ready).accepted:
+        # start sending
+        logger.debug('Scheduling')
+        result = scheduler.queue_task(send_mailing,
+                                      pvars={'mailing': form.vars.id})
+        logger.debug('Scheduling result: {}'.format(result))
+        response.flash = 'Mailing wordt verstuurd'
+    elif form.errors:
+        response.flash = 'Fouten in formulier'
+    else:
+        response.flash = 'Vul het formulier in'
+    return dict(form=form)
 
 
 @auth.requires_login()
 @auth.requires_membership('admin')
 def send_custom_mailing():
-   logger.debug('send_mailing called')
-   form = SQLFORM(db.custom_mailings)
-   
-   if form.process(keepvalues=True).accepted:
-       # start sending
-       logger.debug('Scheduling')
-       result = scheduler.queue_task(send_custom_mailing, pvars={'mailing': form.vars.id})
-       logger.debug('Scheduling result: {}'.format(result))
-       response.flash = 'Mailing wordt verstuurd'
-   elif form.errors:
-       response.flash = 'form has errors'
-   else:
-       response.flash = 'please fill out the form'
-   return dict(form=form)
+    logger.debug('send_mailing called')
+    form = SQLFORM(db.custom_mailings)
+
+    if form.process(keepvalues=True).accepted:
+        # start sending
+        logger.debug('Scheduling')
+        result = scheduler.queue_task(send_custom_mailing,
+                                      pvars={'mailing': form.vars.id})
+        logger.debug('Scheduling result: {}'.format(result))
+        response.flash = 'Mailing wordt verstuurd'
+    elif form.errors:
+        response.flash = 'form has errors'
+    else:
+        response.flash = 'please fill out the form'
+    return dict(form=form)
 
 
 @auth.requires_login()
