@@ -41,7 +41,8 @@ def _():
     # useful links to internal and external resources
     response.menu += [
         ('Addresses', False, URL('mailing', 'default', 'addresses')),
-        ('Send Mailing', False, URL('mailing', 'default', 'send_mailing')),
+        ('Send Magazine', False, URL('mailing', 'default', 'send_mailing')),
+        ('Send custom mailing', False, URL('mailing', 'default', 'send_custom_mailing')),
         ('Logs', False, URL('mailing', 'default', 'logs')),
         ]
 if DEVELOPMENT_MENU: _()

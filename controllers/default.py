@@ -96,6 +96,25 @@ def send_mailing():
 
 @auth.requires_login()
 @auth.requires_membership('admin')
+def send_custom_mailing():
+   logger.debug('send_mailing called')
+   form = SQLFORM(db.custom_mailings)
+   
+   if form.process(keepvalues=True).accepted:
+       # start sending
+       logger.debug('Scheduling')
+       result = scheduler.queue_task(send_custom_mailing, pvars={'mailing': form.vars.id})
+       logger.debug('Scheduling result: {}'.format(result))
+       response.flash = 'Mailing wordt verstuurd'
+   elif form.errors:
+       response.flash = 'form has errors'
+   else:
+       response.flash = 'please fill out the form'
+   return dict(form=form)
+
+
+@auth.requires_login()
+@auth.requires_membership('admin')
 def logs():
     form = SQLFORM.grid(db.logs, editable=False, deletable=False)
     return locals()
