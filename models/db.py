@@ -121,6 +121,6 @@ db.define_table('custom_mailings',
                )
 
 db.define_table('logs',
-                Field('f_issue_number', 'integer'),
+                Field('f_issue_number', 'string'),
                 Field('f_log', 'text'),
                 )
