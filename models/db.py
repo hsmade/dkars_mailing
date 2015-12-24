@@ -95,7 +95,7 @@ auth.settings.reset_password_requires_verification = True
 db.define_table('addresses',
                 Field('f_call', 'string'),
                 Field('f_naam', 'string'),
-                Field('f_email', 'string'),
+                Field('f_email', 'string', requires = IS_EMAIL(error_message='invalid email!')),
                 Field('f_taal', 'string', requires=IS_IN_SET(('dutch', 'english'))),
                 Field('f_type', 'string')
                 )
