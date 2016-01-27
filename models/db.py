@@ -112,10 +112,10 @@ db.define_table('mailings',
 
 
 db.define_table('custom_mailings',
-                Field('f_subject_dutch', 'text', requires=IS_NOT_EMPTY(), label='Nederlands subject'),
-                Field('f_subject_english', 'text', requires=IS_NOT_EMPTY(), label='Engels subject'),
-                Field('f_text_dutch', 'text', requires=IS_NOT_EMPTY(), label='Nederlandse tekst'),
-                Field('f_text_english', 'text', requires=IS_NOT_EMPTY(), label='Engelse tekst'),
+                Field('f_subject_dutch', 'text', label='Nederlands subject'),
+                Field('f_subject_english', 'text', label='Engels subject'),
+                Field('f_text_dutch', 'text', label='Nederlandse tekst'),
+                Field('f_text_english', 'text', label='Engelse tekst'),
                 Field('f_test_mode', 'boolean', label='Stuur alleen test mail'),
                 Field('f_test_address', 'string', label='Mail adres voor test mail')
                )

@@ -19,7 +19,7 @@ def send_mailing(mailing):
         'januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli',
         'augustus', 'september', 'oktober', 'november', 'december')
     date = datetime(mailing_record.f_year, mailing_record.f_month, 1)
-    newsletter = '{}{}'.format(date.year, date.month)
+    newsletter = '{year}{month:02d}'.format(year=date.year, month=int(date.month))
     subject = {
         'english': 'DKARS Magazine #{issue}, {month} {year}'.format(
                 issue=mailing_record.f_issue_number,
@@ -35,8 +35,8 @@ def send_mailing(mailing):
 
     from_address = 'DKARS-news-{newsletter}@dkars.nl'.format(
             newsletter=newsletter)
-    link = 'http://downloads.dkars.nl/DKARS%20Magazine%20{}.pdf'.format(
-            newsletter)
+    link = 'http://downloads.dkars.nl/DKARS%20Magazine%20{newsletter}.pdf'.format(
+            newsletter=newsletter)
 
     send_mail(
         mailing_record=mailing_record,
@@ -68,6 +68,8 @@ def send_mail(mailing_record, subject,
     s = smtplib.SMTP('localhost')
     for language in languages:
         text = getattr(mailing_record, 'f_text_{}'.format(language))
+        if not text or not subject[language]:
+            continue
         index = 1
         if mailing_record.f_test_mode:
             addresses = [mailing_record.f_test_address]
